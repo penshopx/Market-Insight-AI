@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Platform Riset Marketing Konstruksi"
+description = "Platform intelijen riset marketing untuk industri konstruksi Indonesia. Digunakan oleh Tim Riset (Direktur Marketing + AI Orchestrator) untuk mengumpulkan, menganalisis, dan menyajikan data tren konstruksi, status SBU/SKK, data kontraktor/konsultan, SKK holders, peluang tender, dan pain points setiap pagi pukul 07.00 di workroom."
+version = "1.0.0"
+id = "artifacts/konstruksi-riset"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22550
+
+[services.development]
+run = "pnpm --filter @workspace/konstruksi-riset run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/konstruksi-riset", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/konstruksi-riset/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22550"
+BASE_PATH = "/"

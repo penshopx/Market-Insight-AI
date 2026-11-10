@@ -1,0 +1,28 @@
+kind = "video"
+previewPath = "/riset-video/"
+title = "Video Animasi — Proses Riset Intel Konstruksi"
+description = "Animated explainer video showing the Intel Konstruksi research process: from manual data chaos to automated intelligence — crawling construction sources, AI analysis, team insights delivered every morning."
+version = "1.0.0"
+id = "artifacts/riset-video"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/riset-video/" ]
+localPort = 20552
+
+[services.development]
+run = "pnpm --filter @workspace/riset-video run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/riset-video", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/riset-video/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20552"
+BASE_PATH = "/riset-video/"

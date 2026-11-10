@@ -1,0 +1,3621 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.2.0
+  description: API specification for Platform Riset Marketing Konstruksi Indonesia
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: openrouter
+    description: OpenRouter AI chat operations
+  - name: health
+    description: Health operations
+  - name: ebt
+    description: Energi Baru Terbarukan — RUPTL projects, IPP pipeline, PLN tenders
+  - name: mining
+    description: Pertambangan — IUP data, RKAB pipeline, mining projects
+  - name: environment
+    description: Lingkungan & Transisi Energi — AMDAL, carbon projects, PROPER
+  - name: research-items
+    description: Research data items
+  - name: contractors
+    description: Contractor and consultant data
+  - name: skk-holders
+    description: SKK certification holders
+  - name: tender-opportunities
+    description: Construction tender opportunities
+  - name: pain-points
+    description: Pain points and problems collected
+  - name: output-products
+    description: Output products from Problem Formulation Team
+  - name: ai-recommendations
+    description: AI product recommendations from Problem Formulation Team
+  - name: marketing-strategies
+    description: Marketing strategies for fast-moving products
+  - name: data-collector
+    description: Server-side data fetcher from external sources
+  - name: scheduler
+    description: Daily data collection scheduler (07:00 WIB)
+  - name: dashboard
+    description: Dashboard summary and analytics
+  - name: Storage
+    description: Object storage upload and serving endpoints.
+  - name: workroom
+    description: Shared Workroom analysis notes (shared across team members)
+  - name: competitor-signals
+    description: Competitor pricing signals collected from IjinTender and other competitor sources
+
+paths:
+  /ebt-projects:
+    get:
+      operationId: listEbtProjects
+      tags: [ebt]
+      summary: List EBT projects (RUPTL pipeline, IPP)
+      parameters:
+        - name: teknologi
+          in: query
+          schema:
+            type: string
+          description: "Filter by teknologi: PLTS, PLTB, PLTA, PLTM, PLTBG, PLTBm, HYBRID"
+        - name: status
+          in: query
+          schema:
+            type: string
+          description: "Filter by status: PLANNING, CONSTRUCTION, OPERATIONAL, CANCELLED"
+        - name: provinsi
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of EBT projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EbtProject"
+    post:
+      operationId: createEbtProject
+      tags: [ebt]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EbtProjectInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EbtProject"
+
+  /ebt-projects/{id}:
+    get:
+      operationId: getEbtProject
+      tags: [ebt]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: EBT project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EbtProject"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateEbtProject
+      tags: [ebt]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EbtProjectUpdate"
+      responses:
+        "200":
+          description: Updated EBT project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EbtProject"
+        "404":
+          description: Not found
+
+  /ebt-tenders:
+    get:
+      operationId: listEbtTenders
+      tags: [ebt]
+      summary: List PLN EBT tenders
+      parameters:
+        - name: teknologi
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: provinsi
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of EBT tenders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EbtTender"
+    post:
+      operationId: createEbtTender
+      tags: [ebt]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EbtTenderInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EbtTender"
+
+  /ebt-tenders/{id}:
+    get:
+      operationId: getEbtTender
+      tags: [ebt]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: EBT tender
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EbtTender"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateEbtTender
+      tags: [ebt]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EbtTenderUpdate"
+      responses:
+        "200":
+          description: Updated EBT tender
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EbtTender"
+        "404":
+          description: Not found
+
+  /mining-projects:
+    get:
+      operationId: listMiningProjects
+      tags: [mining]
+      summary: List IUP mining projects from MODI
+      parameters:
+        - name: komoditas
+          in: query
+          schema:
+            type: string
+          description: "Filter by komoditas: NIKEL, BATUBARA, BAUKSIT, TEMBAGA, EMAS, TIMAH"
+        - name: statusIup
+          in: query
+          schema:
+            type: string
+          description: "Filter by statusIup: AKTIF, CNC, DICABUT, HABIS"
+        - name: provinsi
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of mining projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MiningProject"
+    post:
+      operationId: createMiningProject
+      tags: [mining]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MiningProjectInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningProject"
+
+  /mining-projects/{id}:
+    get:
+      operationId: getMiningProject
+      tags: [mining]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Mining project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningProject"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateMiningProject
+      tags: [mining]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MiningProjectUpdate"
+      responses:
+        "200":
+          description: Updated mining project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningProject"
+        "404":
+          description: Not found
+
+  /environment-projects:
+    get:
+      operationId: listEnvironmentProjects
+      tags: [environment]
+      summary: List environment projects (AMDAL, carbon, PROPER)
+      parameters:
+        - name: jenis
+          in: query
+          schema:
+            type: string
+          description: "Filter by jenis: AMDAL, UKL_UPL, SPPL, CARBON_PROJECT, GREEN_BOND, PROPER"
+        - name: sektor
+          in: query
+          schema:
+            type: string
+        - name: provinsi
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of environment projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EnvironmentProject"
+    post:
+      operationId: createEnvironmentProject
+      tags: [environment]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnvironmentProjectInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnvironmentProject"
+
+  /environment-projects/{id}:
+    get:
+      operationId: getEnvironmentProject
+      tags: [environment]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Environment project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnvironmentProject"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateEnvironmentProject
+      tags: [environment]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnvironmentProjectUpdate"
+      responses:
+        "200":
+          description: Updated environment project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnvironmentProject"
+        "404":
+          description: Not found
+
+  /competitor-signals:
+    get:
+      operationId: listCompetitorSignals
+      tags: [competitor-signals]
+      summary: Get competitor pricing signals collected by the scheduler
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: number
+          description: "Max number of signals to return (default 50)"
+        - name: dataSourceSite
+          in: query
+          schema:
+            type: string
+          description: "Filter by data source site, e.g. www.ijintender.co.id"
+      responses:
+        "200":
+          description: List of competitor signals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CompetitorSignal"
+
+  /workroom/notes:
+    get:
+      operationId: getWorkroomNotes
+      tags: [workroom]
+      summary: Get all shared workroom analysis notes
+      responses:
+        "200":
+          description: Workroom notes map
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkroomNotesMap"
+
+  /workroom/notes/{entityType}/{entityId}/history:
+    get:
+      operationId: getWorkroomNoteHistory
+      tags: [workroom]
+      summary: Get edit history for a single workroom note, newest first
+      parameters:
+        - name: entityType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: entityId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: List of history entries, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkroomNoteHistoryItem"
+
+  /workroom/notes/{entityType}/{entityId}:
+    put:
+      operationId: upsertWorkroomNote
+      tags: [workroom]
+      summary: Create or update a single workroom note
+      parameters:
+        - name: entityType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: entityId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertWorkroomNoteInput"
+      responses:
+        "200":
+          description: Upserted note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkroomNoteItem"
+
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /research-items:
+    get:
+      operationId: listResearchItems
+      tags: [research-items]
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: number
+        - name: dataSourceSite
+          in: query
+          schema:
+            type: string
+          description: "Filter by data source site, e.g. ijintender.co.id"
+      responses:
+        "200":
+          description: List of research items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ResearchItem"
+    post:
+      operationId: createResearchItem
+      tags: [research-items]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResearchItemInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResearchItem"
+
+  /research-items/{id}:
+    get:
+      operationId: getResearchItem
+      tags: [research-items]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Research item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResearchItem"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateResearchItem
+      tags: [research-items]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResearchItemUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResearchItem"
+    delete:
+      operationId: deleteResearchItem
+      tags: [research-items]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /research-items/by-category:
+    get:
+      operationId: listResearchItemsByCategory
+      tags: [research-items]
+      responses:
+        "200":
+          description: Research items grouped by category
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ResearchCategoryGroup"
+
+  /contractors:
+    get:
+      operationId: listContractors
+      tags: [contractors]
+      parameters:
+        - name: sbuLevel
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: bidangUsaha
+          in: query
+          schema:
+            type: string
+        - name: province
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of contractors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Contractor"
+    post:
+      operationId: createContractor
+      tags: [contractors]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContractorInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contractor"
+
+  /contractors/{id}:
+    get:
+      operationId: getContractor
+      tags: [contractors]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Contractor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contractor"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateContractor
+      tags: [contractors]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContractorUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contractor"
+    delete:
+      operationId: deleteContractor
+      tags: [contractors]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /skk-holders:
+    get:
+      operationId: listSkkHolders
+      tags: [skk-holders]
+      parameters:
+        - name: jenjang
+          in: query
+          schema:
+            type: number
+        - name: specialization
+          in: query
+          schema:
+            type: string
+        - name: jabatanKerja
+          in: query
+          schema:
+            type: string
+        - name: available
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of SKK holders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SkkHolder"
+    post:
+      operationId: createSkkHolder
+      tags: [skk-holders]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SkkHolderInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SkkHolder"
+
+  /skk-holders/{id}:
+    patch:
+      operationId: updateSkkHolder
+      tags: [skk-holders]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SkkHolderUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SkkHolder"
+    delete:
+      operationId: deleteSkkHolder
+      tags: [skk-holders]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /tender-opportunities:
+    get:
+      operationId: listTenderOpportunities
+      tags: [tender-opportunities]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: province
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of tender opportunities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TenderOpportunity"
+    post:
+      operationId: createTenderOpportunity
+      tags: [tender-opportunities]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TenderOpportunityInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenderOpportunity"
+
+  /tender-opportunities/{id}:
+    get:
+      operationId: getTenderOpportunity
+      tags: [tender-opportunities]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Tender opportunity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenderOpportunity"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateTenderOpportunity
+      tags: [tender-opportunities]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TenderOpportunityUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenderOpportunity"
+    delete:
+      operationId: deleteTenderOpportunity
+      tags: [tender-opportunities]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /pain-points:
+    get:
+      operationId: listPainPoints
+      tags: [pain-points]
+      parameters:
+        - name: segment
+          in: query
+          schema:
+            type: string
+        - name: priority
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of pain points
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PainPoint"
+    post:
+      operationId: createPainPoint
+      tags: [pain-points]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PainPointInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PainPoint"
+
+  /pain-points/{id}:
+    patch:
+      operationId: updatePainPoint
+      tags: [pain-points]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PainPointUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PainPoint"
+    delete:
+      operationId: deletePainPoint
+      tags: [pain-points]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /output-products:
+    get:
+      operationId: listOutputProducts
+      tags: [output-products]
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: targetSegment
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of output products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OutputProduct"
+    post:
+      operationId: createOutputProduct
+      tags: [output-products]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OutputProductInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutputProduct"
+
+  /output-products/{id}:
+    get:
+      operationId: getOutputProduct
+      tags: [output-products]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Output product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutputProduct"
+    patch:
+      operationId: updateOutputProduct
+      tags: [output-products]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OutputProductUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutputProduct"
+    delete:
+      operationId: deleteOutputProduct
+      tags: [output-products]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /ai-recommendations:
+    get:
+      operationId: listAiRecommendations
+      tags: [ai-recommendations]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: feasibility
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of AI recommendations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AiRecommendation"
+    post:
+      operationId: createAiRecommendation
+      tags: [ai-recommendations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiRecommendationInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiRecommendation"
+
+  /ai-recommendations/{id}:
+    patch:
+      operationId: updateAiRecommendation
+      tags: [ai-recommendations]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiRecommendationUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiRecommendation"
+
+  /marketing-strategies:
+    get:
+      operationId: listMarketingStrategies
+      tags: [marketing-strategies]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: strategyType
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of marketing strategies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MarketingStrategy"
+    post:
+      operationId: createMarketingStrategy
+      tags: [marketing-strategies]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MarketingStrategyInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketingStrategy"
+
+  /marketing-strategies/{id}:
+    patch:
+      operationId: updateMarketingStrategy
+      tags: [marketing-strategies]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MarketingStrategyUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketingStrategy"
+
+  /data-collector/fetch:
+    post:
+      operationId: fetchDataSource
+      tags: [data-collector]
+      summary: Server-side fetch and parse data from an external source URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DataFetchInput"
+      responses:
+        "200":
+          description: Fetched and parsed data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataFetchResult"
+
+  /data-collector/sources:
+    get:
+      operationId: listDataSources
+      tags: [data-collector]
+      summary: List all configured data sources to monitor
+      responses:
+        "200":
+          description: List of data sources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DataSource"
+
+  /scheduler/status:
+    get:
+      operationId: getSchedulerStatus
+      tags: [scheduler]
+      summary: Get current scheduler state (last run, next run, running flag)
+      responses:
+        "200":
+          description: Scheduler status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchedulerStatus"
+
+  /scheduler/trigger:
+    post:
+      operationId: triggerScheduler
+      tags: [scheduler]
+      summary: Manually trigger the daily data collection job immediately
+      responses:
+        "200":
+          description: Collection job completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyCollectionReport"
+        "409":
+          description: Job already running
+
+  /scheduler/trigger-source:
+    post:
+      operationId: triggerSchedulerForSource
+      tags: [scheduler]
+      summary: Trigger immediate data collection for a single source ID
+      parameters:
+        - name: sourceId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Collection job completed for the specified source
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyCollectionReport"
+        "400":
+          description: sourceId missing
+        "404":
+          description: Source not found
+        "409":
+          description: Job already running
+
+  /scheduler/trigger-empty:
+    post:
+      operationId: triggerSchedulerForEmptySources
+      tags: [scheduler]
+      summary: Crawl only sources that have never been crawled
+      description: Resolves the current MKR schedule on the server and immediately crawls only sources with no successful crawl history.
+      responses:
+        "200":
+          description: Collection job completed for sources without crawl history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyCollectionReport"
+        "409":
+          description: Job already running
+        "500":
+          description: Unable to determine crawl history
+        "401":
+          description: Missing admin authorization
+        "403":
+          description: Invalid admin authorization
+        "503":
+          description: Admin authorization is not configured
+
+  /scheduler/runs:
+    get:
+      operationId: getSchedulerRuns
+      tags: [scheduler]
+      summary: Get the last 30 scheduler run logs from the database
+      responses:
+        "200":
+          description: List of scheduler run logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SchedulerRun"
+
+  /scheduler/runs/{id}/notify:
+    post:
+      operationId: retryRunNotification
+      tags: [scheduler]
+      summary: Re-send the collection notification for a specific scheduler run
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Notification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchedulerRunNotificationResult"
+        "400":
+          description: Invalid run ID
+        "404":
+          description: Run not found
+
+  /scheduler/mkr-schedule:
+    get:
+      operationId: getMkrCrawlSchedule
+      tags: [scheduler]
+      summary: Get MKR-aware crawl schedule matrix for all data sources
+      responses:
+        "200":
+          description: Crawl schedule matrix
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MkrCrawlScheduleResponse"
+
+  /mkr/crawl-schedule:
+    get:
+      operationId: getMkrCrawlScheduleAlias
+      tags: [scheduler]
+      summary: Get active MKR crawl schedule with lastCrawledAt and nextScheduledAt per source
+      responses:
+        "200":
+          description: Active crawl schedule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MkrCrawlScheduleResponse"
+
+  /scheduler/briefing/deliveries:
+    get:
+      operationId: listBriefingDeliveries
+      tags: [scheduler]
+      summary: Get the last 30 briefing delivery records (kapan terkirim, ke berapa penerima, status).
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: number
+          description: "Max records to return (default 30)"
+      responses:
+        "200":
+          description: List of briefing delivery records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BriefingDelivery"
+
+  /scheduler/briefing/send:
+    post:
+      operationId: sendBriefing
+      tags: [scheduler]
+      summary: Send the daily briefing notification now (webhook/Slack). Returns delivery result so failures are visible.
+      responses:
+        "200":
+          description: Delivery result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationResult"
+        "500":
+          description: Unexpected server error
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      responses:
+        "200":
+          description: Summary stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/trending-topics:
+    get:
+      operationId: getTrendingTopics
+      tags: [dashboard]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Trending topics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrendingTopic"
+
+  /dashboard/expiring-certifications:
+    get:
+      operationId: getExpiringCertifications
+      tags: [dashboard]
+      responses:
+        "200":
+          description: Expiring certifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExpiringCertification"
+
+  /dashboard/activity-feed:
+    get:
+      operationId: getActivityFeed
+      tags: [dashboard]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Activity feed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityFeedItem"
+
+  /storage/uploads/request-url:
+    post:
+      tags: [Storage]
+      operationId: requestUploadUrl
+      summary: Request a presigned URL for file upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadUrlRequest'
+      responses:
+        '200':
+          description: Presigned upload URL generated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadUrlResponse'
+        '400':
+          description: Missing or invalid required fields.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Failed to generate upload URL.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /storage/objects/{objectPath}:
+    get:
+      tags: [Storage]
+      operationId: getStorageObject
+      summary: Serve an object entity from PRIVATE_OBJECT_DIR
+      parameters:
+        - name: objectPath
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Object content streamed with correct Content-Type.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Object not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Failed to serve object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /mkr-shares:
+    post:
+      tags: [Storage]
+      operationId: createMkrShare
+      summary: Store an MKR PDF and create an expiring public download link
+      requestBody:
+        required: true
+        content:
+          application/pdf:
+            schema:
+              $ref: '#/components/schemas/MkrSharePdfInput'
+      responses:
+        '201':
+          description: Expiring MKR download link created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MkrShareLink'
+        '400':
+          description: Invalid or oversized PDF.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Authentication required to create a share link.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Failed to store the PDF.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /mkr-shares/{token}:
+    get:
+      tags: [Storage]
+      operationId: downloadMkrShare
+      summary: Download an MKR PDF through an expiring public token
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: MKR PDF download.
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Share link is invalid or the PDF no longer exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '410':
+          description: Share link has expired.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /openrouter/conversations:
+    get:
+      operationId: listOpenrouterConversations
+      tags: [openrouter]
+      summary: List all conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenrouterConversation"
+    post:
+      operationId: createOpenrouterConversation
+      tags: [openrouter]
+      summary: Create a new conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenrouterConversationInput"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenrouterConversation"
+  /openrouter/conversations/{id}:
+    get:
+      operationId: getOpenrouterConversation
+      tags: [openrouter]
+      summary: Get conversation with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenrouterConversationWithMessages"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenrouterError"
+    delete:
+      operationId: deleteOpenrouterConversation
+      tags: [openrouter]
+      summary: Delete a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenrouterError"
+  /openrouter/conversations/{id}/messages:
+    get:
+      operationId: listOpenrouterMessages
+      tags: [openrouter]
+      summary: List messages in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenrouterMessage"
+    post:
+      operationId: sendOpenrouterMessage
+      tags: [openrouter]
+      summary: Send a message and receive an AI response (SSE stream)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenrouterMessageInput"
+      responses:
+        "200":
+          description: SSE stream of assistant response chunks
+          content:
+            text/event-stream: {}
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    ResearchItem:
+      type: object
+      required: [id, category, title, source, status, createdAt]
+      properties:
+        id:
+          type: number
+        category:
+          type: string
+        title:
+          type: string
+        summary:
+          type: ["string", "null"]
+        source:
+          type: string
+        sourceUrl:
+          type: ["string", "null"]
+        dataSourceSite:
+          type: ["string", "null"]
+          description: "e.g. lpjk.pu.go.id, spse.inaproc.id"
+        status:
+          type: string
+        priority:
+          type: ["string", "null"]
+        tags:
+          type: ["string", "null"]
+        collectedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    ResearchItemInput:
+      type: object
+      required: [category, title, source]
+      properties:
+        category:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        source:
+          type: string
+        sourceUrl:
+          type: string
+        dataSourceSite:
+          type: string
+        priority:
+          type: string
+        tags:
+          type: string
+        collectedAt:
+          type: string
+
+    ResearchItemUpdate:
+      type: object
+      properties:
+        category:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        source:
+          type: string
+        sourceUrl:
+          type: string
+        dataSourceSite:
+          type: string
+        status:
+          type: string
+        priority:
+          type: string
+        tags:
+          type: string
+
+    ResearchCategoryGroup:
+      type: object
+      required: [category, count, latestAt]
+      properties:
+        category:
+          type: string
+        count:
+          type: number
+        latestAt:
+          type: ["string", "null"]
+        pendingCount:
+          type: number
+        reviewedCount:
+          type: number
+
+    Contractor:
+      type: object
+      required: [id, name, type, sbuLevel, createdAt]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        type:
+          type: string
+          description: "KONTRAKTOR | KONSULTAN"
+        sbuLevel:
+          type: string
+          description: "MENENGAH | SPESIALIS | BESAR | ASING"
+        sbuCode:
+          type: ["string", "null"]
+        sbuExpiry:
+          type: ["string", "null"]
+        bidangUsaha:
+          type: ["string", "null"]
+          description: "e.g. Jasa Konstruksi Bangunan Sipil"
+        subBidang:
+          type: ["string", "null"]
+          description: "e.g. Jasa Pelaksana Konstruksi Bangunan Gedung"
+        klasifikasi:
+          type: ["string", "null"]
+          description: "Kode Klasifikasi SBU"
+        npwp:
+          type: ["string", "null"]
+        registrationNumber:
+          type: ["string", "null"]
+          description: "Nomor Registrasi LPJK"
+        address:
+          type: ["string", "null"]
+        province:
+          type: ["string", "null"]
+        city:
+          type: ["string", "null"]
+        postalCode:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        website:
+          type: ["string", "null"]
+        dataSource:
+          type: ["string", "null"]
+          description: "Nama situs sumber data"
+        dataSourceUrl:
+          type: ["string", "null"]
+          description: "URL lengkap halaman sumber"
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    ContractorInput:
+      type: object
+      required: [name, type, sbuLevel]
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        sbuLevel:
+          type: string
+        sbuCode:
+          type: string
+        sbuExpiry:
+          type: string
+        bidangUsaha:
+          type: string
+        subBidang:
+          type: string
+        klasifikasi:
+          type: string
+        npwp:
+          type: string
+        registrationNumber:
+          type: string
+        address:
+          type: string
+        province:
+          type: string
+        city:
+          type: string
+        postalCode:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        website:
+          type: string
+        dataSource:
+          type: string
+        dataSourceUrl:
+          type: string
+        notes:
+          type: string
+
+    ContractorUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        sbuLevel:
+          type: string
+        sbuCode:
+          type: string
+        sbuExpiry:
+          type: string
+        bidangUsaha:
+          type: string
+        subBidang:
+          type: string
+        klasifikasi:
+          type: string
+        npwp:
+          type: string
+        registrationNumber:
+          type: string
+        address:
+          type: string
+        province:
+          type: string
+        city:
+          type: string
+        postalCode:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        website:
+          type: string
+        dataSource:
+          type: string
+        dataSourceUrl:
+          type: string
+        notes:
+          type: string
+
+    SkkHolder:
+      type: object
+      required: [id, name, jenjang, specialization, createdAt]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        jenjang:
+          type: number
+          description: "7, 8, or 9"
+        specialization:
+          type: string
+          description: "Bidang Keahlian"
+        jabatanKerja:
+          type: ["string", "null"]
+          description: "e.g. Ahli Madya Manajemen Konstruksi"
+        skkNumber:
+          type: ["string", "null"]
+        skkExpiry:
+          type: ["string", "null"]
+        certificationBody:
+          type: ["string", "null"]
+          description: "LSP / Asosiasi yang menerbitkan SKK"
+        education:
+          type: ["string", "null"]
+          description: "Pendidikan terakhir"
+        province:
+          type: ["string", "null"]
+        city:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        currentEmployer:
+          type: ["string", "null"]
+        available:
+          type: boolean
+        dataSource:
+          type: ["string", "null"]
+        dataSourceUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    SkkHolderInput:
+      type: object
+      required: [name, jenjang, specialization]
+      properties:
+        name:
+          type: string
+        jenjang:
+          type: number
+        specialization:
+          type: string
+        jabatanKerja:
+          type: string
+        skkNumber:
+          type: string
+        skkExpiry:
+          type: string
+        certificationBody:
+          type: string
+        education:
+          type: string
+        province:
+          type: string
+        city:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        currentEmployer:
+          type: string
+        available:
+          type: boolean
+        dataSource:
+          type: string
+        dataSourceUrl:
+          type: string
+
+    SkkHolderUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        jenjang:
+          type: number
+        specialization:
+          type: string
+        jabatanKerja:
+          type: string
+        skkNumber:
+          type: string
+        skkExpiry:
+          type: string
+        certificationBody:
+          type: string
+        education:
+          type: string
+        province:
+          type: string
+        city:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        currentEmployer:
+          type: string
+        available:
+          type: boolean
+        dataSource:
+          type: string
+        dataSourceUrl:
+          type: string
+
+    TenderOpportunity:
+      type: object
+      required: [id, title, client, province, status, createdAt]
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        client:
+          type: string
+        province:
+          type: string
+        city:
+          type: ["string", "null"]
+        estimatedValue:
+          type: ["number", "null"]
+        deadline:
+          type: ["string", "null"]
+        status:
+          type: string
+        source:
+          type: ["string", "null"]
+        sourceUrl:
+          type: ["string", "null"]
+        dataSourceSite:
+          type: ["string", "null"]
+        requirements:
+          type: ["string", "null"]
+        sbuRequired:
+          type: ["string", "null"]
+          description: "Kualifikasi SBU yang dibutuhkan"
+        lpseCode:
+          type: ["string", "null"]
+          description: "Kode paket di LPSE"
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    TenderOpportunityInput:
+      type: object
+      required: [title, client, province]
+      properties:
+        title:
+          type: string
+        client:
+          type: string
+        province:
+          type: string
+        city:
+          type: string
+        estimatedValue:
+          type: number
+        deadline:
+          type: string
+        status:
+          type: string
+        source:
+          type: string
+        sourceUrl:
+          type: string
+        dataSourceSite:
+          type: string
+        requirements:
+          type: string
+        sbuRequired:
+          type: string
+        lpseCode:
+          type: string
+        notes:
+          type: string
+
+    TenderOpportunityUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        client:
+          type: string
+        province:
+          type: string
+        city:
+          type: string
+        estimatedValue:
+          type: number
+        deadline:
+          type: string
+        status:
+          type: string
+        source:
+          type: string
+        sourceUrl:
+          type: string
+        dataSourceSite:
+          type: string
+        requirements:
+          type: string
+        sbuRequired:
+          type: string
+        lpseCode:
+          type: string
+        notes:
+          type: string
+
+    PainPoint:
+      type: object
+      required: [id, segment, description, priority, status, createdAt]
+      properties:
+        id:
+          type: number
+        problemId:
+          type: ["string", "null"]
+          description: "Kode unik masalah, e.g. TDR-001, SKK-002"
+        domain:
+          type: ["string", "null"]
+          description: "TENDER | SBU | SKK | OSS | ISO | SMK3 | LEGAL | DOKUMEN | ESTIMASI | PROYEK | KEUANGAN | SDM | KNOWLEDGE | REGULASI | MARKETING | DIGITALISASI"
+        subdomain:
+          type: ["string", "null"]
+          description: "e.g. Administrasi, Teknis, Keuangan"
+        painScore:
+          type: ["number", "null"]
+          description: "Skor frustrasi 1-10"
+        affectedRoles:
+          type: ["string", "null"]
+          description: "Peran yang terdampak, comma-separated"
+        rootCause:
+          type: ["string", "null"]
+        businessImpact:
+          type: ["string", "null"]
+        sdmGap:
+          type: ["string", "null"]
+        manualSolution:
+          type: ["string", "null"]
+        digitalSolution:
+          type: ["string", "null"]
+        aiSolution:
+          type: ["string", "null"]
+        linkedAiAgent:
+          type: ["string", "null"]
+          description: "e.g. TenderClaw, SKKClaw"
+        serviceOpportunity:
+          type: ["string", "null"]
+          description: "Peluang jasa terkait"
+        crossReferences:
+          type: ["string", "null"]
+          description: "ID masalah yang berkaitan"
+        segment:
+          type: string
+          description: "Target pengguna: KONTRAKTOR | KONSULTAN | TENAGA_KERJA | SEMUA"
+        description:
+          type: string
+        frequency:
+          type: ["string", "null"]
+          description: "HARIAN | MINGGUAN | BULANAN | SANGAT_SERING | SERING"
+        priority:
+          type: string
+          description: "LOW | MEDIUM | HIGH | CRITICAL"
+        category:
+          type: ["string", "null"]
+        productIdea:
+          type: ["string", "null"]
+        status:
+          type: string
+          description: "OPEN | IN_PROGRESS | RESOLVED"
+        evidencePhotoUrl:
+          type: ["string", "null"]
+          description: "URL foto bukti lapangan (object-storage path atau data URL)"
+        createdAt:
+          type: string
+
+    PainPointInput:
+      type: object
+      required: [segment, description, priority]
+      properties:
+        problemId:
+          type: string
+        domain:
+          type: string
+        subdomain:
+          type: string
+        painScore:
+          type: number
+        affectedRoles:
+          type: string
+        rootCause:
+          type: string
+        businessImpact:
+          type: string
+        sdmGap:
+          type: string
+        manualSolution:
+          type: string
+        digitalSolution:
+          type: string
+        aiSolution:
+          type: string
+        linkedAiAgent:
+          type: string
+        serviceOpportunity:
+          type: string
+        crossReferences:
+          type: string
+        segment:
+          type: string
+        description:
+          type: string
+        frequency:
+          type: string
+        priority:
+          type: string
+        category:
+          type: string
+        productIdea:
+          type: string
+        status:
+          type: string
+        evidencePhotoUrl:
+          type: string
+          description: "URL foto bukti lapangan (object-storage path atau data URL)"
+
+    PainPointUpdate:
+      type: object
+      properties:
+        problemId:
+          type: string
+        domain:
+          type: string
+        subdomain:
+          type: string
+        painScore:
+          type: number
+        affectedRoles:
+          type: string
+        rootCause:
+          type: string
+        businessImpact:
+          type: string
+        sdmGap:
+          type: string
+        manualSolution:
+          type: string
+        digitalSolution:
+          type: string
+        aiSolution:
+          type: string
+        linkedAiAgent:
+          type: string
+        serviceOpportunity:
+          type: string
+        crossReferences:
+          type: string
+        segment:
+          type: string
+        description:
+          type: string
+        frequency:
+          type: string
+        priority:
+          type: string
+        category:
+          type: string
+        productIdea:
+          type: string
+        status:
+          type: string
+        evidencePhotoUrl:
+          type: string
+          description: "URL foto bukti lapangan (object-storage path atau data URL)"
+
+    OutputProduct:
+      type: object
+      required: [id, type, title, targetSegment, status, createdAt]
+      properties:
+        id:
+          type: number
+        type:
+          type: string
+          description: "INFOGRAPHIC | VIDEO | MODUL | PODCAST | EBOOK"
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        targetSegment:
+          type: string
+          description: "KONTRAKTOR | KONSULTAN | TENAGA_KERJA | SEMUA"
+        linkedPainPointIds:
+          type: ["string", "null"]
+          description: "Comma-separated pain point IDs"
+        keyMessages:
+          type: ["string", "null"]
+        format:
+          type: ["string", "null"]
+          description: "e.g. A4 Landscape, MP4 5 menit, PDF 20 halaman"
+        platform:
+          type: ["string", "null"]
+          description: "e.g. Instagram, YouTube, Spotify, WhatsApp"
+        status:
+          type: string
+          description: "DRAFT | IN_PROGRESS | REVIEW | READY | PUBLISHED"
+        publishedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    OutputProductInput:
+      type: object
+      required: [type, title, targetSegment]
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        targetSegment:
+          type: string
+        linkedPainPointIds:
+          type: string
+        keyMessages:
+          type: string
+        format:
+          type: string
+        platform:
+          type: string
+        status:
+          type: string
+
+    OutputProductUpdate:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        targetSegment:
+          type: string
+        linkedPainPointIds:
+          type: string
+        keyMessages:
+          type: string
+        format:
+          type: string
+        platform:
+          type: string
+        status:
+          type: string
+        publishedAt:
+          type: string
+
+    AiRecommendation:
+      type: object
+      required: [id, aiProductName, problemSolved, targetUsers, feasibility, priority, status, createdAt]
+      properties:
+        id:
+          type: number
+        linkedPainPointId:
+          type: ["number", "null"]
+        aiProductName:
+          type: string
+          description: "Nama produk AI yang direkomendasikan"
+        description:
+          type: string
+        problemSolved:
+          type: string
+          description: "Masalah spesifik yang dipecahkan produk ini"
+        targetUsers:
+          type: string
+          description: "Siapa pengguna utama produk AI ini"
+        techStack:
+          type: ["string", "null"]
+          description: "e.g. ChatGPT API, Python, RAG, OCR"
+        feasibility:
+          type: string
+          description: "LOW | MEDIUM | HIGH"
+        priority:
+          type: string
+          description: "LOW | MEDIUM | HIGH | CRITICAL"
+        estimatedImpact:
+          type: ["string", "null"]
+        revenueModel:
+          type: ["string", "null"]
+          description: "e.g. SaaS bulanan, per-transaksi, freemium"
+        status:
+          type: string
+          description: "CONCEPT | VALIDATED | IN_DEVELOPMENT | LAUNCHED"
+        createdAt:
+          type: string
+
+    AiRecommendationInput:
+      type: object
+      required: [aiProductName, description, problemSolved, targetUsers, feasibility, priority]
+      properties:
+        linkedPainPointId:
+          type: number
+        aiProductName:
+          type: string
+        description:
+          type: string
+        problemSolved:
+          type: string
+        targetUsers:
+          type: string
+        techStack:
+          type: string
+        feasibility:
+          type: string
+        priority:
+          type: string
+        estimatedImpact:
+          type: string
+        revenueModel:
+          type: string
+        status:
+          type: string
+
+    AiRecommendationUpdate:
+      type: object
+      properties:
+        linkedPainPointId:
+          type: number
+        aiProductName:
+          type: string
+        description:
+          type: string
+        problemSolved:
+          type: string
+        targetUsers:
+          type: string
+        techStack:
+          type: string
+        feasibility:
+          type: string
+        priority:
+          type: string
+        estimatedImpact:
+          type: string
+        revenueModel:
+          type: string
+        status:
+          type: string
+
+    MarketingStrategy:
+      type: object
+      required: [id, strategyTitle, strategyType, targetAudience, channels, status, createdAt]
+      properties:
+        id:
+          type: number
+        linkedProductId:
+          type: ["number", "null"]
+          description: "ID output product yang menjadi subjek strategi"
+        linkedPainPointId:
+          type: ["number", "null"]
+        strategyTitle:
+          type: string
+        strategyType:
+          type: string
+          description: "CONTENT_MARKETING | SOCIAL_MEDIA | WEBINAR | DIRECT_SALES | PARTNERSHIP | COMMUNITY | EMAIL | INFLUENCER"
+        targetAudience:
+          type: string
+          description: "Siapa target audiens utama"
+        channels:
+          type: string
+          description: "Platform/channel yang digunakan (Instagram, YouTube, WhatsApp Blast, dll)"
+        keyMessages:
+          type: ["string", "null"]
+          description: "Pesan utama yang ingin disampaikan"
+        callToAction:
+          type: ["string", "null"]
+        timeline:
+          type: ["string", "null"]
+          description: "e.g. 4 minggu, Q3 2026"
+        budget:
+          type: ["string", "null"]
+        kpi:
+          type: ["string", "null"]
+          description: "Key Performance Indicators yang diukur"
+        fastMovingTactic:
+          type: ["string", "null"]
+          description: "Taktik khusus agar produk laku cepat"
+        status:
+          type: string
+          description: "PLANNED | ACTIVE | PAUSED | COMPLETED"
+        createdAt:
+          type: string
+
+    MarketingStrategyInput:
+      type: object
+      required: [strategyTitle, strategyType, targetAudience, channels]
+      properties:
+        linkedProductId:
+          type: number
+        linkedPainPointId:
+          type: number
+        strategyTitle:
+          type: string
+        strategyType:
+          type: string
+        targetAudience:
+          type: string
+        channels:
+          type: string
+        keyMessages:
+          type: string
+        callToAction:
+          type: string
+        timeline:
+          type: string
+        budget:
+          type: string
+        kpi:
+          type: string
+        fastMovingTactic:
+          type: string
+        status:
+          type: string
+
+    MarketingStrategyUpdate:
+      type: object
+      properties:
+        linkedProductId:
+          type: number
+        linkedPainPointId:
+          type: number
+        strategyTitle:
+          type: string
+        strategyType:
+          type: string
+        targetAudience:
+          type: string
+        channels:
+          type: string
+        keyMessages:
+          type: string
+        callToAction:
+          type: string
+        timeline:
+          type: string
+        budget:
+          type: string
+        kpi:
+          type: string
+        fastMovingTactic:
+          type: string
+        status:
+          type: string
+
+    DataFetchInput:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+          description: "URL sumber yang akan di-fetch"
+        sourceLabel:
+          type: string
+          description: "Label sumber (e.g. lpjk.pu.go.id)"
+        category:
+          type: string
+          description: "Kategori data yang diharapkan"
+        saveToCategory:
+          type: string
+          description: "Jika diisi, data akan otomatis disimpan ke research_items"
+
+    DataFetchResult:
+      type: object
+      required: [url, sourceLabel, status, fetchedAt]
+      properties:
+        url:
+          type: string
+        sourceLabel:
+          type: string
+        status:
+          type: string
+          description: "SUCCESS | PARTIAL | BLOCKED | ERROR"
+        fetchedAt:
+          type: string
+        title:
+          type: ["string", "null"]
+          description: "Judul halaman yang di-fetch"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/FetchedItem"
+        rawSummary:
+          type: ["string", "null"]
+          description: "Ringkasan konten yang berhasil di-ekstrak"
+        errorMessage:
+          type: ["string", "null"]
+
+    FetchedItem:
+      type: object
+      required: [title, content]
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        url:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        savedAsResearchItem:
+          type: boolean
+
+    DataSource:
+      type: object
+      required: [id, name, url, category, description]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        lastFetched:
+          type: ["string", "null"]
+
+    DashboardSummary:
+      type: object
+      required: [totalResearchItems, pendingReview, expiringCertifications, openTenders, totalContractors, totalSkkHolders, criticalPainPoints, todayCollected, outputProducts, aiRecommendations, sourcesCount]
+      properties:
+        sourcesCount:
+          type: number
+        totalResearchItems:
+          type: number
+        pendingReview:
+          type: number
+        expiringCertifications:
+          type: number
+        openTenders:
+          type: number
+        totalContractors:
+          type: number
+        totalSkkHolders:
+          type: number
+        criticalPainPoints:
+          type: number
+        todayCollected:
+          type: number
+        outputProducts:
+          type: number
+        aiRecommendations:
+          type: number
+        trendingCategory:
+          type: ["string", "null"]
+        lastUpdated:
+          type: string
+
+    TrendingTopic:
+      type: object
+      required: [topic, count, category, trend]
+      properties:
+        topic:
+          type: string
+        count:
+          type: number
+        category:
+          type: string
+        trend:
+          type: string
+        sources:
+          type: ["string", "null"]
+
+    ExpiringCertification:
+      type: object
+      required: [type, holderName, expiryDate, daysLeft]
+      properties:
+        type:
+          type: string
+        holderName:
+          type: string
+        certNumber:
+          type: ["string", "null"]
+        expiryDate:
+          type: string
+        daysLeft:
+          type: number
+        level:
+          type: ["string", "null"]
+        contactPhone:
+          type: ["string", "null"]
+        contactEmail:
+          type: ["string", "null"]
+
+    ActivityFeedItem:
+      type: object
+      required: [id, type, description, createdAt]
+      properties:
+        id:
+          type: number
+        type:
+          type: string
+        description:
+          type: string
+        category:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    SchedulerRunNotificationResult:
+      type: object
+      required: [channel, success, sentAt]
+      properties:
+        channel:
+          type: string
+        success:
+          type: boolean
+        sentAt:
+          type: string
+        errorMessage:
+          type: ["string", "null"]
+        httpStatus:
+          type: ["number", "null"]
+
+    SchedulerRun:
+      type: object
+      required: [id, startedAt, finishedAt, totalItemsSaved, totalItemsSkipped, results]
+      properties:
+        id:
+          type: number
+        startedAt:
+          type: string
+        finishedAt:
+          type: string
+        status:
+          type: string
+          description: Run lifecycle status — RUNNING, COMPLETED, or INTERRUPTED
+        totalItemsSaved:
+          type: number
+        totalItemsSkipped:
+          type: number
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/CollectionSourceResult"
+        notificationResult:
+          oneOf:
+            - $ref: "#/components/schemas/SchedulerRunNotificationResult"
+            - type: "null"
+        notificationRetryCount:
+          type: number
+          description: Number of notification dispatch attempts that have failed. Startup recovery stops retrying once this reaches 3.
+
+    CollectionSourceResult:
+      type: object
+      required: [sourceId, sourceName, status, itemsSaved, itemsSkipped]
+      properties:
+        sourceId:
+          type: string
+        sourceName:
+          type: string
+        status:
+          type: string
+        itemsSaved:
+          type: number
+        itemsSkipped:
+          type: number
+        errorMessage:
+          type: ["string", "null"]
+
+    DailyCollectionReport:
+      type: object
+      required: [startedAt, finishedAt, totalItemsSaved, totalItemsSkipped, results]
+      properties:
+        startedAt:
+          type: string
+        finishedAt:
+          type: string
+        totalItemsSaved:
+          type: number
+        totalItemsSkipped:
+          type: number
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/CollectionSourceResult"
+
+    BriefingDelivery:
+      type: object
+      required: [id, deliveryDate, status, pdfGenerated, successCount, failCount, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        deliveryDate:
+          type: string
+          description: "YYYY-MM-DD in WIB (UTC+7) — idempotency key"
+        status:
+          type: string
+          description: "PENDING | SUCCESS | PARTIAL | FAILED"
+        pdfGenerated:
+          type: boolean
+        successCount:
+          type: number
+        failCount:
+          type: number
+        error:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    NotificationResult:
+      type: object
+      required: [channel, success, sentAt]
+      properties:
+        channel:
+          type: string
+        success:
+          type: boolean
+        sentAt:
+          type: string
+        errorMessage:
+          type: ["string", "null"]
+        httpStatus:
+          type: ["number", "null"]
+
+    SchedulerStatus:
+      type: object
+      required: [isRunning, lastRunAt, lastRunResult, nextRunAt, totalRunsToday]
+      properties:
+        isRunning:
+          type: boolean
+        lastRunAt:
+          type: ["string", "null"]
+        lastRunResult:
+          oneOf:
+            - $ref: "#/components/schemas/DailyCollectionReport"
+            - type: "null"
+        nextRunAt:
+          type: ["string", "null"]
+        totalRunsToday:
+          type: number
+        lastNotificationResult:
+          oneOf:
+            - $ref: "#/components/schemas/NotificationResult"
+            - type: "null"
+
+    MkrScheduleEntry:
+      type: object
+      required: [sourceId, sourceName, sourceUrl, category, description, frequency, priority, mkrSourceId, businessValue, dueToday, dueThisWeek, dueThisMonth, prioritasCrawl]
+      properties:
+        sourceId:
+          type: string
+        sourceName:
+          type: string
+        sourceUrl:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        frequency:
+          type: string
+        priority:
+          type: number
+        mkrSourceId:
+          type: string
+        businessValue:
+          type: number
+        dueToday:
+          type: boolean
+        dueThisWeek:
+          type: boolean
+        dueThisMonth:
+          type: boolean
+        lastCrawledAt:
+          type: string
+          nullable: true
+        nextScheduledAt:
+          type: string
+          nullable: true
+        prioritasCrawl:
+          type: string
+
+    MkrCrawlScheduleResponse:
+      type: object
+      required: [date, todayBatchCount, totalSources, matrix]
+      properties:
+        date:
+          type: string
+        todayBatchCount:
+          type: number
+        totalSources:
+          type: number
+        matrix:
+          type: array
+          items:
+            $ref: "#/components/schemas/MkrScheduleEntry"
+
+    WorkroomPainPointNote:
+      type: object
+      required: [note, status]
+      properties:
+        note:
+          type: string
+        status:
+          type: string
+        authorName:
+          type: ["string", "null"]
+        updatedAt:
+          type: ["string", "null"]
+
+    WorkroomResearchNote:
+      type: object
+      required: [note, status]
+      properties:
+        note:
+          type: string
+        status:
+          type: string
+        authorName:
+          type: ["string", "null"]
+        updatedAt:
+          type: ["string", "null"]
+
+    WorkroomContractorNote:
+      type: object
+      required: [note, status]
+      properties:
+        note:
+          type: string
+        status:
+          type: string
+        authorName:
+          type: ["string", "null"]
+        updatedAt:
+          type: ["string", "null"]
+
+    WorkroomNotesMap:
+      type: object
+      required: [painPoints, researchItems, serviceLinks, contractors]
+      properties:
+        painPoints:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/WorkroomPainPointNote"
+        researchItems:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/WorkroomResearchNote"
+        serviceLinks:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: number
+        contractors:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/WorkroomContractorNote"
+
+    UpsertWorkroomNoteInput:
+      type: object
+      properties:
+        note:
+          type: string
+        status:
+          type: string
+        serviceIds:
+          type: ["string", "null"]
+        authorName:
+          type: ["string", "null"]
+
+    WorkroomNoteItem:
+      type: object
+      required: [id, entityType, entityId, note, status, updatedAt, createdAt]
+      properties:
+        id:
+          type: number
+        entityType:
+          type: string
+        entityId:
+          type: number
+        note:
+          type: string
+        status:
+          type: string
+        serviceIds:
+          type: ["string", "null"]
+        authorName:
+          type: ["string", "null"]
+        updatedAt:
+          type: string
+        createdAt:
+          type: string
+
+    WorkroomNoteHistoryItem:
+      type: object
+      required: [id, entityType, entityId, note, status, changedAt]
+      properties:
+        id:
+          type: number
+        entityType:
+          type: string
+        entityId:
+          type: number
+        note:
+          type: string
+        status:
+          type: string
+        authorName:
+          type: ["string", "null"]
+        changedAt:
+          type: string
+
+    UploadUrlRequest:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        size:
+          type: number
+          minimum: 1
+        contentType:
+          type: string
+
+    MkrSharePdfInput:
+      type: string
+
+    MkrShareLink:
+      type: object
+      required: [downloadPath, expiresAt]
+      properties:
+        downloadPath:
+          type: string
+          example: /api/mkr-shares/share-token
+        expiresAt:
+          type: string
+          minLength: 1
+    UploadUrlResponse:
+      type: object
+      required: [uploadURL, objectPath]
+      properties:
+        uploadURL:
+          type: string
+        objectPath:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/UploadUrlRequest'
+    CompetitorSignal:
+      type: object
+      required: [id, category, title, source, createdAt]
+      properties:
+        id:
+          type: number
+        category:
+          type: string
+        title:
+          type: string
+        summary:
+          type: ["string", "null"]
+        source:
+          type: string
+        sourceUrl:
+          type: ["string", "null"]
+        dataSourceSite:
+          type: ["string", "null"]
+        collectedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    OpenrouterConversation:
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        model:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - model
+        - createdAt
+    OpenrouterMessage:
+      type: object
+      properties:
+        id:
+          type: number
+        conversationId:
+          type: number
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - conversationId
+        - role
+        - content
+        - createdAt
+    OpenrouterConversationInput:
+      type: object
+      properties:
+        title:
+          type: string
+        model:
+          type: string
+      required:
+        - title
+        - model
+    OpenrouterMessageInput:
+      type: object
+      properties:
+        content:
+          type: string
+        model:
+          type: string
+      required:
+        - content
+        - model
+    OpenrouterConversationWithMessages:
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        model:
+          type: string
+        createdAt:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpenrouterMessage"
+      required:
+        - id
+        - title
+        - model
+        - createdAt
+        - messages
+    OpenrouterError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    EbtProject:
+      type: object
+      required: [id, judul, teknologi, status, createdAt]
+      properties:
+        id:
+          type: number
+        judul:
+          type: string
+        teknologi:
+          type: string
+        kapasitasMw:
+          type: ["number", "null"]
+        status:
+          type: string
+        provinsi:
+          type: ["string", "null"]
+        lokasi:
+          type: ["string", "null"]
+        tahunTarget:
+          type: ["string", "null"]
+        pemrakarsa:
+          type: ["string", "null"]
+        jenisPemrakarsa:
+          type: ["string", "null"]
+        sumber:
+          type: ["string", "null"]
+        sourceUrl:
+          type: ["string", "null"]
+        dataSourceSite:
+          type: ["string", "null"]
+        catatan:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    EbtProjectInput:
+      type: object
+      required: [judul, teknologi]
+      properties:
+        judul:
+          type: string
+        teknologi:
+          type: string
+        kapasitasMw:
+          type: number
+        status:
+          type: string
+        provinsi:
+          type: string
+        lokasi:
+          type: string
+        tahunTarget:
+          type: string
+        pemrakarsa:
+          type: string
+        jenisPemrakarsa:
+          type: string
+        sumber:
+          type: string
+        sourceUrl:
+          type: string
+        dataSourceSite:
+          type: string
+        catatan:
+          type: string
+
+    EbtProjectUpdate:
+      type: object
+      properties:
+        judul:
+          type: string
+        teknologi:
+          type: string
+        kapasitasMw:
+          type: number
+        status:
+          type: string
+        provinsi:
+          type: string
+        lokasi:
+          type: string
+        tahunTarget:
+          type: string
+        pemrakarsa:
+          type: string
+        jenisPemrakarsa:
+          type: string
+        sumber:
+          type: string
+        sourceUrl:
+          type: string
+        catatan:
+          type: string
+
+    EbtTender:
+      type: object
+      required: [id, judul, klien, status, createdAt]
+      properties:
+        id:
+          type: number
+        judul:
+          type: string
+        klien:
+          type: string
+        teknologi:
+          type: ["string", "null"]
+        nilaiEstimasi:
+          type: ["number", "null"]
+        provinsi:
+          type: ["string", "null"]
+        deadline:
+          type: ["string", "null"]
+        status:
+          type: string
+        sumber:
+          type: ["string", "null"]
+        sourceUrl:
+          type: ["string", "null"]
+        dataSourceSite:
+          type: ["string", "null"]
+        catatan:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    EbtTenderInput:
+      type: object
+      required: [judul]
+      properties:
+        judul:
+          type: string
+        klien:
+          type: string
+        teknologi:
+          type: string
+        nilaiEstimasi:
+          type: number
+        provinsi:
+          type: string
+        deadline:
+          type: string
+        status:
+          type: string
+        sumber:
+          type: string
+        sourceUrl:
+          type: string
+        dataSourceSite:
+          type: string
+        catatan:
+          type: string
+
+    EbtTenderUpdate:
+      type: object
+      properties:
+        judul:
+          type: string
+        klien:
+          type: string
+        teknologi:
+          type: string
+        nilaiEstimasi:
+          type: number
+        provinsi:
+          type: string
+        deadline:
+          type: string
+        status:
+          type: string
+        catatan:
+          type: string
+
+    MiningProject:
+      type: object
+      required: [id, pemegang, komoditas, statusIup, createdAt]
+      properties:
+        id:
+          type: number
+        nomorIup:
+          type: ["string", "null"]
+        pemegang:
+          type: string
+        komoditas:
+          type: string
+        statusIup:
+          type: string
+        jenisIup:
+          type: ["string", "null"]
+        provinsi:
+          type: ["string", "null"]
+        kabupaten:
+          type: ["string", "null"]
+        luasHa:
+          type: ["number", "null"]
+        tahunTerbit:
+          type: ["string", "null"]
+        tahunBerakhir:
+          type: ["string", "null"]
+        statusRkab:
+          type: ["string", "null"]
+        sumber:
+          type: ["string", "null"]
+        sourceUrl:
+          type: ["string", "null"]
+        dataSourceSite:
+          type: ["string", "null"]
+        catatan:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    MiningProjectInput:
+      type: object
+      required: [pemegang, komoditas]
+      properties:
+        nomorIup:
+          type: string
+        pemegang:
+          type: string
+        komoditas:
+          type: string
+        statusIup:
+          type: string
+        jenisIup:
+          type: string
+        provinsi:
+          type: string
+        kabupaten:
+          type: string
+        luasHa:
+          type: number
+        tahunTerbit:
+          type: string
+        tahunBerakhir:
+          type: string
+        statusRkab:
+          type: string
+        sumber:
+          type: string
+        sourceUrl:
+          type: string
+        dataSourceSite:
+          type: string
+        catatan:
+          type: string
+
+    MiningProjectUpdate:
+      type: object
+      properties:
+        nomorIup:
+          type: string
+        pemegang:
+          type: string
+        komoditas:
+          type: string
+        statusIup:
+          type: string
+        jenisIup:
+          type: string
+        provinsi:
+          type: string
+        kabupaten:
+          type: string
+        luasHa:
+          type: number
+        tahunTerbit:
+          type: string
+        tahunBerakhir:
+          type: string
+        statusRkab:
+          type: string
+        catatan:
+          type: string
+
+    EnvironmentProject:
+      type: object
+      required: [id, judul, jenis, createdAt]
+      properties:
+        id:
+          type: number
+        judul:
+          type: string
+        jenis:
+          type: string
+        pemrakarsa:
+          type: ["string", "null"]
+        sektor:
+          type: ["string", "null"]
+        statusAmdal:
+          type: ["string", "null"]
+        peringkatProper:
+          type: ["string", "null"]
+        provinsi:
+          type: ["string", "null"]
+        nilaiKarbon:
+          type: ["number", "null"]
+        nilaiProyek:
+          type: ["number", "null"]
+        tahun:
+          type: ["string", "null"]
+        sumber:
+          type: ["string", "null"]
+        sourceUrl:
+          type: ["string", "null"]
+        dataSourceSite:
+          type: ["string", "null"]
+        catatan:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    EnvironmentProjectInput:
+      type: object
+      required: [judul, jenis]
+      properties:
+        judul:
+          type: string
+        jenis:
+          type: string
+        pemrakarsa:
+          type: string
+        sektor:
+          type: string
+        statusAmdal:
+          type: string
+        peringkatProper:
+          type: string
+        provinsi:
+          type: string
+        nilaiKarbon:
+          type: number
+        nilaiProyek:
+          type: number
+        tahun:
+          type: string
+        sumber:
+          type: string
+        sourceUrl:
+          type: string
+        dataSourceSite:
+          type: string
+        catatan:
+          type: string
+
+    EnvironmentProjectUpdate:
+      type: object
+      properties:
+        judul:
+          type: string
+        jenis:
+          type: string
+        pemrakarsa:
+          type: string
+        sektor:
+          type: string
+        statusAmdal:
+          type: string
+        peringkatProper:
+          type: string
+        provinsi:
+          type: string
+        nilaiKarbon:
+          type: number
+        nilaiProyek:
+          type: number
+        tahun:
+          type: string
+        catatan:
+          type: string
+
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string

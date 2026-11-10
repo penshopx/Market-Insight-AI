@@ -1,0 +1,24 @@
+kind = "mobile"
+previewPath = "/riset-mobile/"
+title = "Tim Riset Mobile"
+description = "Aplikasi mobile untuk Tim Riset Konstruksi Indonesia. Memungkinkan tim input data riset, kontraktor, dan pain point langsung dari lapangan, melihat dashboard harian dengan summary statistik, dan mendapat notifikasi sertifikasi yang akan expire."
+version = "1.0.0"
+id = "artifacts/riset-mobile"
+router = "expo-domain"
+
+[[services]]
+name = "expo"
+ensurePreviewReachable = "/status"
+paths = [ "/riset-mobile/" ]
+localPort = 24896
+
+[services.development]
+run = "pnpm --filter @workspace/riset-mobile run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/riset-mobile", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/riset-mobile", "run", "serve" ]
+
+[services.env]
+PORT = "24896"
+BASE_PATH = "/riset-mobile/"

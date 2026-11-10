@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/intel-konstruksi/"
+title = "Intel Konstruksi — Landing Page"
+description = "Landing page publik untuk Intel Konstruksi, platform intelijen riset marketing industri konstruksi Indonesia. Menampilkan proposisi nilai dengan framework AIDA-PAS, registrasi & login pengguna via Clerk Auth, dan video animasi proses riset. Gratis untuk semua pengguna."
+version = "1.0.0"
+id = "artifacts/intel-konstruksi-landing"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/intel-konstruksi/" ]
+localPort = 22327
+
+[services.development]
+run = "pnpm --filter @workspace/intel-konstruksi-landing run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/intel-konstruksi-landing", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/intel-konstruksi-landing/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22327"
+BASE_PATH = "/intel-konstruksi/"

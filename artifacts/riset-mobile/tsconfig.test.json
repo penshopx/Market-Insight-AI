@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["jest"]
+  },
+  "include": [
+    "hooks/__tests__/**/*.ts",
+    "hooks/__tests__/**/*.tsx"
+  ],
+  "exclude": []
+}

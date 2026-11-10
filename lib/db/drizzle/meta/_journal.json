@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1785718103500,
+      "tag": "0000_tiresome_gwen_stacy",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1785718693734,
+      "tag": "0001_add_workroom_notes_unique_constraint",
+      "breakpoints": true
+    }
+  ]
+}
